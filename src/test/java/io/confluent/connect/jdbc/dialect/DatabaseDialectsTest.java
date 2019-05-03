@@ -43,6 +43,7 @@ public class DatabaseDialectsTest {
     assertContainsInstanceOf(providers, SapHanaDatabaseDialect.Provider.class);
     assertContainsInstanceOf(providers, VerticaDatabaseDialect.Provider.class);
     assertContainsInstanceOf(providers, MockDatabaseDialect.Provider.class);
+    assertContainsInstanceOf(providers, ClickHouseDatabaseDialect.Provider.class);
   }
 
   @Test
@@ -92,6 +93,11 @@ public class DatabaseDialectsTest {
   public void shouldFindVerticaDialect() {
     assertDialect(VerticaDatabaseDialect.class,
                   "jdbc:vertica://VerticaHost:portNumber/databaseName");
+  }
+  
+  @Test
+  public void shouldFindClickHouseDialect() {
+	    assertDialect(ClickHouseDatabaseDialect.class, "jdbc:clickhouse://localhost:8123/sakila");
   }
 
   @Test
