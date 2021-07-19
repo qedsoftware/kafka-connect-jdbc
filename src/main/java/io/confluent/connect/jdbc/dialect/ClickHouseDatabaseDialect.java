@@ -229,8 +229,7 @@ public class ClickHouseDatabaseDialect extends GenericDatabaseDialect {
       switch (field.schemaName()) {
         case Decimal.LOGICAL_NAME:
           int scale = Integer.parseInt(field.schemaParameters().get(Decimal.SCALE_FIELD));
-          // TODO - which Decimal ? Decimal 32/64/128
-          return "Decimal64(" + scale + ")";
+          return "Decimal256(" + scale + ")";
         case Date.LOGICAL_NAME:
           return "Date";
         case Time.LOGICAL_NAME:

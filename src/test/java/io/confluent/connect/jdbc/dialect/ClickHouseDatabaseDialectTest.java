@@ -45,10 +45,10 @@ public class ClickHouseDatabaseDialectTest extends BaseDialectTest<ClickHouseDat
 
   @Test
   public void shouldMapDecimalSchemaTypeToDecimalSqlType() {
-    assertDecimalMapping(0, "Decimal64(0)");
-    assertDecimalMapping(3, "Decimal64(3)");
-    assertDecimalMapping(4, "Decimal64(4)");
-    assertDecimalMapping(5, "Decimal64(5)");
+    assertDecimalMapping(0, "Decimal256(0)");
+    assertDecimalMapping(3, "Decimal256(3)");
+    assertDecimalMapping(4, "Decimal256(4)");
+    assertDecimalMapping(5, "Decimal256(5)");
   }
 
   @Test
@@ -62,8 +62,8 @@ public class ClickHouseDatabaseDialectTest extends BaseDialectTest<ClickHouseDat
     verifyDataTypeMapping("UInt8", Schema.BOOLEAN_SCHEMA);
     verifyDataTypeMapping("String", Schema.STRING_SCHEMA);
 //    verifyDataTypeMapping("VARBINARY(1024)", Schema.BYTES_SCHEMA);
-    verifyDataTypeMapping("Decimal64(0)", Decimal.schema(0));
-    verifyDataTypeMapping("Decimal64(2)", Decimal.schema(2));
+    verifyDataTypeMapping("Decimal256(0)", Decimal.schema(0));
+    verifyDataTypeMapping("Decimal256(2)", Decimal.schema(2));
     verifyDataTypeMapping("Date", Date.SCHEMA);
     verifyDataTypeMapping("DateTime", Time.SCHEMA);
     verifyDataTypeMapping("DateTime", Timestamp.SCHEMA);
@@ -95,7 +95,7 @@ public class ClickHouseDatabaseDialectTest extends BaseDialectTest<ClickHouseDat
         "\"c5\" Nullable(Date) DEFAULT toDate('2001-03-15'),\n" +
         "\"c6\" Nullable(DateTime) DEFAULT toDateTime('0000-00-00 00:00:00'),\n" +
         "\"c7\" Nullable(DateTime) DEFAULT toDateTime('2001-03-15 00:00:00'),\n" +
-        "\"c8\" Nullable(Decimal64(4)))\n" +
+        "\"c8\" Nullable(Decimal256(4)))\n" +
         "ENGINE = MergeTree\n" +
         "ORDER BY (\"c1\")";
     String sql = dialect.buildCreateTableStatement(tableId, sinkRecordFields);
@@ -114,7 +114,7 @@ public class ClickHouseDatabaseDialectTest extends BaseDialectTest<ClickHouseDat
         "ADD COLUMN \"c5\" Nullable(Date) DEFAULT toDate('2001-03-15'),\n" +
 		"ADD COLUMN \"c6\" Nullable(DateTime) DEFAULT toDateTime('0000-00-00 00:00:00'),\n" +
         "ADD COLUMN \"c7\" Nullable(DateTime) DEFAULT toDateTime('2001-03-15 00:00:00'),\n" +
-        "ADD COLUMN \"c8\" Nullable(Decimal64(4))"};
+        "ADD COLUMN \"c8\" Nullable(Decimal256(4))"};
     assertStatements(sql, statements);
   }
 
