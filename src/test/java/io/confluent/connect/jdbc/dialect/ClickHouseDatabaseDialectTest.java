@@ -7,22 +7,17 @@ import org.apache.kafka.connect.data.Schema;
 import org.apache.kafka.connect.data.Schema.Type;
 import org.apache.kafka.connect.data.Time;
 import org.apache.kafka.connect.data.Timestamp;
-import org.junit.Before;
 import org.junit.Test;
 
 import java.math.BigDecimal;
 import java.nio.ByteBuffer;
-import java.sql.DriverManager;
 import java.sql.SQLException;
 import java.time.ZoneOffset;
-import java.util.Arrays;
 import java.util.Calendar;
 import java.util.List;
 import java.util.TimeZone;
 import java.util.concurrent.ThreadLocalRandom;
 
-import io.confluent.connect.jdbc.sink.metadata.SinkRecordField;
-import io.confluent.connect.jdbc.util.ColumnId;
 import io.confluent.connect.jdbc.util.DateTimeUtils;
 import io.confluent.connect.jdbc.util.QuoteMethod;
 import io.confluent.connect.jdbc.util.TableId;
@@ -92,14 +87,14 @@ public class ClickHouseDatabaseDialectTest extends BaseDialectTest<ClickHouseDat
   @Test
   public void shouldBuildCreateQueryStatement() {
     String expected =
-        "CREATE TABLE \"myTable\" (\n" + 
-		"\"c1\" Int32,\n" + 
+        "CREATE TABLE \"myTable\" (\n" +
+		"\"c1\" Int32,\n" +
 		"\"c2\" Int64,\n" +
-        "\"c3\" String,\n" + 
+        "\"c3\" String,\n" +
 		"\"c4\" Nullable(String),\n" +
-        "\"c5\" Nullable(Date) DEFAULT toDate('2001-03-15'),\n" + 
+        "\"c5\" Nullable(Date) DEFAULT toDate('2001-03-15'),\n" +
         "\"c6\" Nullable(DateTime) DEFAULT toDateTime('0000-00-00 00:00:00'),\n" +
-        "\"c7\" Nullable(DateTime) DEFAULT toDateTime('2001-03-15 00:00:00'),\n" + 
+        "\"c7\" Nullable(DateTime) DEFAULT toDateTime('2001-03-15 00:00:00'),\n" +
         "\"c8\" Nullable(Decimal64(4)))\n" +
         "ENGINE = MergeTree\n" +
         "ORDER BY (\"c1\")";
@@ -111,12 +106,12 @@ public class ClickHouseDatabaseDialectTest extends BaseDialectTest<ClickHouseDat
   public void shouldBuildAlterTableStatement() {
     List<String> statements = dialect.buildAlterTable(tableId, sinkRecordFields);
     String[] sql = {
-        "ALTER TABLE \"myTable\" \n" + 
-		"ADD COLUMN \"c1\" Int32,\n" + 
+        "ALTER TABLE \"myTable\" \n" +
+		"ADD COLUMN \"c1\" Int32,\n" +
 		"ADD COLUMN \"c2\" Int64,\n" +
-        "ADD COLUMN \"c3\" String,\n" + 
+        "ADD COLUMN \"c3\" String,\n" +
 		"ADD COLUMN \"c4\" Nullable(String),\n" +
-        "ADD COLUMN \"c5\" Nullable(Date) DEFAULT toDate('2001-03-15'),\n" + 
+        "ADD COLUMN \"c5\" Nullable(Date) DEFAULT toDate('2001-03-15'),\n" +
 		"ADD COLUMN \"c6\" Nullable(DateTime) DEFAULT toDateTime('0000-00-00 00:00:00'),\n" +
         "ADD COLUMN \"c7\" Nullable(DateTime) DEFAULT toDateTime('2001-03-15 00:00:00'),\n" +
         "ADD COLUMN \"c8\" Nullable(Decimal64(4))"};
@@ -127,14 +122,14 @@ public class ClickHouseDatabaseDialectTest extends BaseDialectTest<ClickHouseDat
   @Test
   public void createOneColNoPk() {
     verifyCreateOneColNoPk(
-        "CREATE TABLE \"myTable\" (" + System.lineSeparator() + "\"col1\" Int32)" + 
+        "CREATE TABLE \"myTable\" (" + System.lineSeparator() + "\"col1\" Int32)" +
     		System.lineSeparator() + "ENGINE = MergeTree");
 
     quoteIdentfiiers = QuoteMethod.NEVER;
     dialect = createDialect();
 
     verifyCreateOneColNoPk(
-        "CREATE TABLE myTable (" + System.lineSeparator() + "col1 Int32)" + 
+        "CREATE TABLE myTable (" + System.lineSeparator() + "col1 Int32)" +
     System.lineSeparator() + "ENGINE = MergeTree");
   }
 
