@@ -1,3 +1,18 @@
+/*
+ * Copyright 2018 Confluent Inc.
+ *
+ * Licensed under the Confluent Community License (the "License"); you may not use
+ * this file except in compliance with the License.  You may obtain a copy of the
+ * License at
+ *
+ * http://www.confluent.io/confluent-community-license
+ *
+ * Unless required by applicable law or agreed to in writing, software
+ * distributed under the License is distributed on an "AS IS" BASIS, WITHOUT
+ * WARRANTIES OF ANY KIND, either express or implied.  See the License for the
+ * specific language governing permissions and limitations under the License.
+ */
+
 package io.confluent.connect.jdbc.dialect;
 
 import org.apache.kafka.common.config.AbstractConfig;
@@ -9,28 +24,21 @@ import org.apache.kafka.connect.data.Time;
 import org.apache.kafka.connect.data.Timestamp;
 
 import java.math.BigDecimal;
-import java.sql.Connection;
 import java.sql.PreparedStatement;
-import java.sql.ResultSet;
 import java.sql.SQLException;
 import java.text.SimpleDateFormat;
 import java.time.ZoneOffset;
-import java.util.Calendar;
 import java.util.Collection;
 import java.util.Collections;
-import java.util.GregorianCalendar;
 import java.util.HashMap;
 import java.util.List;
 import java.util.Map;
 import java.util.TimeZone;
 
-import io.confluent.connect.jdbc.dialect.DatabaseDialect;
 import io.confluent.connect.jdbc.dialect.DatabaseDialectProvider.SubprotocolBasedProvider;
-import io.confluent.connect.jdbc.dialect.GenericDatabaseDialect;
 import io.confluent.connect.jdbc.sink.JdbcSinkConfig;
 import io.confluent.connect.jdbc.sink.metadata.SinkRecordField;
 import io.confluent.connect.jdbc.source.JdbcSourceConnectorConfig;
-import io.confluent.connect.jdbc.util.ColumnId;
 import io.confluent.connect.jdbc.util.DateTimeUtils;
 import io.confluent.connect.jdbc.util.ExpressionBuilder;
 import io.confluent.connect.jdbc.util.ExpressionBuilder.Transform;
@@ -50,6 +58,7 @@ public class ClickHouseDatabaseDialect extends GenericDatabaseDialect {
     }
 
     @Override
+
     public DatabaseDialect create(AbstractConfig config) {
       return new ClickHouseDatabaseDialect(config);
     }
@@ -58,6 +67,7 @@ public class ClickHouseDatabaseDialect extends GenericDatabaseDialect {
   TimeZone timeZone;
   String engine;
   String partitionExpression;
+
   /**
    * Create a new dialect instance with the given connector configuration.
    *
@@ -67,25 +77,22 @@ public class ClickHouseDatabaseDialect extends GenericDatabaseDialect {
     super(config, new IdentifierRules(".", "\"", "\""));
     
     if (config instanceof JdbcSourceConnectorConfig) {
-        timeZone = ((JdbcSourceConnectorConfig) config).timeZone();
-      } else if (config instanceof JdbcSinkConfig) {
-        timeZone = ((JdbcSinkConfig) config).timeZone;
-      } else {
-        timeZone = TimeZone.getTimeZone(ZoneOffset.UTC);
-      }
+      timeZone = ((JdbcSourceConnectorConfig) config).timeZone();
+    } else if (config instanceof JdbcSinkConfig) {
+      timeZone = ((JdbcSinkConfig) config).timeZone;
+    } else {
+      timeZone = TimeZone.getTimeZone(ZoneOffset.UTC);
+    }
     
     if (ConfigDef.Type.STRING == config.typeOf("table.engine")) {
-    	engine = config.getString("table.engine");
-    }
-    else {
-    	engine = "MergeTree";
+      engine = config.getString("table.engine");
+    } else {
+      engine = "MergeTree";
     }
 
     if (ConfigDef.Type.STRING == config.typeOf("table.partition")) {
-    	partitionExpression = config.getString("table.partition");
+      partitionExpression = config.getString("table.partition");
     }
-    
-
   }
   
 
@@ -108,23 +115,24 @@ public class ClickHouseDatabaseDialect extends GenericDatabaseDialect {
     builder.append(engine);
     
     if (partitionExpression != null) {
-        builder.append(System.lineSeparator());
-    	builder.append("PARTITION BY ");
-    	builder.append(partitionExpression);
+      builder.append(System.lineSeparator());
+      builder.append("PARTITION BY ");
+      builder.append(partitionExpression);
     }
 
     if (!pkFieldNames.isEmpty()) {
-        builder.append(System.lineSeparator());
-        builder.append("ORDER BY (");
-        builder.appendList()
-               .delimitedBy(",")
-               .transformedBy(ExpressionBuilder.quote())
-               .of(pkFieldNames);
-        builder.append(")");
-      }
+      builder.append(System.lineSeparator());
+      builder.append("ORDER BY (");
+      builder.appendList()
+             .delimitedBy(",")
+             .transformedBy(ExpressionBuilder.quote())
+             .of(pkFieldNames);
+      builder.append(")");
+    }
 
     return builder.toString();
   }
+
   private static final ThreadLocal<Map<TimeZone, SimpleDateFormat>> TIMEZONE_TIMESTAMP_FORMATS =
       ThreadLocal.withInitial(HashMap::new);
 
@@ -151,68 +159,68 @@ public class ClickHouseDatabaseDialect extends GenericDatabaseDialect {
 
   
   protected void formatColumnValue(
-	      ExpressionBuilder builder,
-	      String schemaName,
-	      Map<String, String> schemaParameters,
-	      Schema.Type type,
-	      Object value
-	  ) {
-	    if (schemaName != null) {
-	      switch (schemaName) {
-	        case Date.LOGICAL_NAME:
-	          builder.appendStringQuoted(DateTimeUtils.formatDate((java.util.Date) value, timeZone));
-	          return;
-	        case Time.LOGICAL_NAME:
-	          builder.appendStringQuoted(formatTime((java.util.Date) value, timeZone));
-	          return;
-	        case org.apache.kafka.connect.data.Timestamp.LOGICAL_NAME:
-	          builder.appendStringQuoted(formatTimestamp((java.util.Date) value, timeZone)
-	          );
-	          return;
-	        default:
-	          // fall through to regular types
-	          break;
-	      }
-	    }
-	    super.formatColumnValue(builder, schemaName, schemaParameters, type, value);
+      ExpressionBuilder builder,
+      String schemaName,
+      Map<String, String> schemaParameters,
+      Schema.Type type,
+      Object value
+  ) {
+    if (schemaName != null) {
+      switch (schemaName) {
+        case Date.LOGICAL_NAME:
+          builder.appendStringQuoted(DateTimeUtils.formatDate((java.util.Date) value, timeZone));
+          return;
+        case Time.LOGICAL_NAME:
+          builder.appendStringQuoted(formatTime((java.util.Date) value, timeZone));
+          return;
+        case org.apache.kafka.connect.data.Timestamp.LOGICAL_NAME:
+          builder.appendStringQuoted(formatTimestamp((java.util.Date) value, timeZone)
+          );
+          return;
+        default:
+          // fall through to regular types
+          break;
+      }
+    }
+    super.formatColumnValue(builder, schemaName, schemaParameters, type, value);
   }
   
   protected void writeColumnSpec(
-	      ExpressionBuilder builder,
-	      SinkRecordField f
-	  ) {
-	    builder.appendColumnName(f.name());
-	    builder.append(" ");
-	    String sqlType = getSqlType(f);
-	    
-	    if (isColumnOptional(f)) {
-	    	builder.append("Nullable(");
-	    }
-	    
-	    builder.append(sqlType);
-	    
-	    if (isColumnOptional(f)) {
-	    	builder.append(")");
-	    }
-	    
-	    if (f.defaultValue() != null) {
-	    	
-	      builder.append(" DEFAULT ");
-	      String type = getSqlType(f);
-	      builder.append("to" + type + "(");
-	      Object defaultValue = f.defaultValue();
-	      
-	      formatColumnValue(
-	          builder,
-	          f.schemaName(),
-	          f.schemaParameters(),
-	          f.schemaType(),
-	          defaultValue
-	      );
-	      builder.append(")");
+        ExpressionBuilder builder,
+        SinkRecordField f
+  ) {
+    builder.appendColumnName(f.name());
+    builder.append(" ");
+    String sqlType = getSqlType(f);
 
-	    }
-	  }
+    if (isColumnOptional(f)) {
+      builder.append("Nullable(");
+    }
+
+    builder.append(sqlType);
+
+    if (isColumnOptional(f)) {
+      builder.append(")");
+    }
+
+    if (f.defaultValue() != null) {
+
+      builder.append(" DEFAULT ");
+      String type = getSqlType(f);
+      builder.append("to" + type + "(");
+      Object defaultValue = f.defaultValue();
+
+      formatColumnValue(
+          builder,
+          f.schemaName(),
+          f.schemaParameters(),
+          f.schemaType(),
+          defaultValue
+      );
+      builder.append(")");
+
+    }
+  }
 
 
   @Override
@@ -224,9 +232,9 @@ public class ClickHouseDatabaseDialect extends GenericDatabaseDialect {
           // TODO - which Decimal ? Decimal 32/64/128
           return "Decimal64(" + scale + ")";
         case Date.LOGICAL_NAME:
-            return "Date";
+          return "Date";
         case Time.LOGICAL_NAME:
-            return "DateTime"; // date parts will be 00's
+          return "DateTime"; // date parts will be 00's
         case Timestamp.LOGICAL_NAME:
           return "DateTime";
         default:
